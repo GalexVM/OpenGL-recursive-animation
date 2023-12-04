@@ -264,6 +264,8 @@ class Cubo{
 			ourShader->setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
+
 };
 
 //-------------------------------------
@@ -636,6 +638,25 @@ class DonaRecursiva : public Dona{
 				this->donaHija = new DonaRecursiva(_window,_shader, dim/3, (pos+1)%4, centro_hijo, depth-1);
 			}
 		}
+		
+		glm::vec3 getCurrentCenter(){
+			Cubo* target;
+			glm::vec3 r(0.0f,0.0f,0.0f);
+			if(orientacion == 0 || orientacion == 1)
+				target = &cubitos[13];
+			else if(orientacion == 2 || orientacion == 3)
+				target = &cubitos[14];
+
+			for(int i = 0; i < 36; i++){
+				r.x += target->vertices_centros[i].x;
+				r.y += target->vertices_centros[i].y;
+				r.z += target->vertices_centros[i].z;
+			}
+			r.x/=36;
+			r.y/=36;
+			r.z/=36;
+			return r;
+		}
 		void generarBuffers() {
 			for (int i = 0; i < cubitos.size(); i++){
 				cubitos[i].generarBuffers();
@@ -819,9 +840,9 @@ int main()
 	MyCube.imprimir_all_donas();
 
 	float firstFrame = static_cast<float>(glfwGetTime());
-	float initialStep = 70.0f;
-	unsigned long long counter = 0;
+	long long counter = 0;
 	int step = 153;
+
     while (!glfwWindowShouldClose(window))
     {
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -853,10 +874,12 @@ int main()
 		}
 		//tp
 		else if(counter == step*5){
-			glm::vec3 c = MyCube.getCentro();
+			glm::vec3 c = MyCube.getCurrentCenter();
+			cout<<"center: "<<c.x<<" "<<c.y<<" "<<c.z<<endl;
 			MyCube.translate_noDraw(glm::vec3(-c.x,-c.y,-c.z));
 			MyCube.rotate_z_noDraw(180.0f);
 			MyCube.dibujar_rubik();
+			counter = -1;
 		}
 		
 
